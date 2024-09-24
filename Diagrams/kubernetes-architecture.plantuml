@@ -1,0 +1,42 @@
+@startuml
+!define RECTANGLE class
+!define ARROW -->
+
+
+package "Kubernetes Cluster" {
+    RECTANGLE "Kubernetes API Server" as api_server
+    RECTANGLE "Scheduler" as scheduler
+    RECTANGLE "Controller Manager" as controller_manager
+    RECTANGLE "etcd (Key-Value Store)" as etcd
+}
+
+package "Node 1" {
+    RECTANGLE "Kubelet" as kubelet_1
+    RECTANGLE "Pod 1" as pod_1
+    RECTANGLE "Pod 2" as pod_2
+}
+
+package "Node 2" {
+    RECTANGLE "Kubelet" as kubelet_2
+    RECTANGLE "Pod 3" as pod_3
+    RECTANGLE "Pod 4" as pod_4
+}
+
+api_server ARROW scheduler : Communicates with
+api_server ARROW controller_manager : Manages
+
+controller_manager ARROW kubelet_1 : Instructs
+controller_manager ARROW kubelet_2 : Instructs
+
+api_server ARROW etcd : Stores cluster state
+etcd ARROW controller_manager : Provides cluster state
+etcd ARROW scheduler : Provides cluster state
+
+scheduler ARROW kubelet_1 : Assigns pods to nodes
+scheduler ARROW kubelet_2 : Assigns pods to nodes
+
+kubelet_1 ARROW pod_1 : Manages
+kubelet_1 ARROW pod_2 : Manages
+kubelet_2 ARROW pod_3 : Manages
+kubelet_2 ARROW pod_4 : Manages
+@enduml
