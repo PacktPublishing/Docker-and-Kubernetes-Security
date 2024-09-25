@@ -1,0 +1,80 @@
+# Kubelet Configuration File
+apiVersion: kubelet.config.k8s.io/v1beta1
+kind: KubeletConfiguration
+
+# Network Settings
+address: "0.0.0.0" # Kubelet listens on all network interfaces
+port: 10250        # Port on which the Kubelet serves HTTP requests
+
+# Authentication Settings
+authentication:
+  anonymous:
+    enabled: false  # Disable anonymous access
+  webhook:
+    enabled: true   # Enable webhook authentication for kubelet
+    cacheTTL: "2m0s"
+  x509:
+    clientCAFile: "/etc/kubernetes/pki/ca.crt"  # Path to CA certificate to verify client certs
+
+# Authorization Settings
+authorization:
+  mode: Webhook     # Use the Webhook mode for authorization
+  webhook:
+    cacheAuthorizedTTL: "5m0s"
+    cacheUnauthorizedTTL: "30s"
+
+# TLS Settings
+tlsCertFile: "/var/lib/kubelet/kubelet.crt"     # Kubelet's server certificate
+tlsPrivateKeyFile: "/var/lib/kubelet/kubelet.key"  # Kubelet's server key
+
+# cAdvisor (Resource Monitoring)
+cgroupDriver: "cgroupfs"  # Control group (cgroup) driver for managing container resources
+
+# Eviction Thresholds
+evictionHard:
+  memory.available: "200Mi"     # Evict pods if available memory drops below 200Mi
+  nodefs.available: "10%"       # Evict pods if node filesystem usage exceeds 90%
+  nodefs.inodesFree: "5%"       # Evict pods if inode usage exceeds 95%
+
+# Resource Limits
+cpuManagerPolicy: "static"      # Use static CPU management for guaranteed pods
+cpuCFSQuota: true               # Enforce CPU limits on containers
+cpuCFSQuotaPeriod: "100ms"
+
+# Pod Lifecycle
+maxPods: 110                    # Maximum number of pods that can be run by the Kubelet
+podPidsLimit: 1000              # Maximum number of process IDs a pod can use
+
+# Image Management
+imageGCHighThresholdPercent: 85  # Trigger garbage collection when disk usage exceeds 85%
+imageGCLowThresholdPercent: 80   # Reduce disk usage to 80% after garbage collection
+imageMinimumGCAge: "2m"          # Images must be unused for at least 2 minutes before being garbage collected
+
+# Logging and Debugging
+logging:
+  format: "json"                 # Log format (json, text)
+  verbosity: 2                   # Log verbosity level (higher is more verbose)
+
+# Volume Plugin Settings
+featureGates:
+  CSIMigration: true             # Enable CSI migration
+  CSIMigrationGCE: true          # Enable CSI migration for GCE PD
+  CSIMigrationAWS: true          # Enable CSI migration for AWS EBS
+
+# Node Allocatable (reserved resources for system daemons)
+systemReserved:
+  cpu: "500m"
+  memory: "512Mi"
+  ephemeral-storage: "1Gi"
+
+kubeReserved:
+  cpu: "500m"
+  memory: "512Mi"
+  ephemeral-storage: "1Gi"
+
+# Node Status Update Frequency
+nodeStatusUpdateFrequency: "10s"  # How often Kubelet reports node status to the API server
+
+# Runtime and Image Settings
+containerRuntimeEndpoint: "unix:///var/run/dockershim.sock"  # Endpoint for container runtime
+runtimeRequestTimeout: "2m0s"                               # Timeout for runtime requests
